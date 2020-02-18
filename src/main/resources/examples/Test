@@ -1,0 +1,21 @@
+[{
+"Name" : "Xytrex Co.",
+"billingAddress" : "Utica Ave",
+"billingCity" : "St Louis Park",
+"billingCountry" : "USA",
+"billingState" : "NN",
+"billingPostalCOde" : "55443",
+"Description" : "Industrial Cleaning Supply Company",
+"Account Number" : "ABC15797531"
+},
+{
+"Name" : "Xytrex Co. 2345",
+"billingAddress" : "Utica Ave",
+"billingCity" : "St Louis Park",
+"billingCountry" : "USA",
+"billingState" : "NN",
+"billingPostalCOde" : "55443",
+"Description" : "Industrial Cleaning Supply Company",
+"Account Number" : "ABC15797532"
+}
+]

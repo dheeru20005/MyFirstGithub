@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="Test1Flow" doc:id="48858e71-5b47-449b-9e1d-a269ae8308a6" >
+		<http:listener doc:name="Listener" doc:id="d050a7eb-c6a9-4794-8b35-04981f0711f8" config-ref="HTTP_Listener_config" path="/Accounts"/>
+		<ee:transform doc:name="Transform Message" doc:id="31b4853e-9f54-4119-847e-2b2b5a055469">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	Name: payload01.Name,
+	BillingStreet: payload01.billingAddress,
+	BillingCity: payload01.billingCity,
+	BillingState: payload01.billingState,
+	BillingPostalCode: payload01.billingPostalCOde,
+	BillingCountry: payload01.billingCountry,
+	AccountNumber: payload01."Account Number",
+	Description: payload01.Description
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:create doc:name="Create" doc:id="ccb89763-6bca-4f50-8b3b-fc232a400ff8" config-ref="Salesforce_Config" type="Account"/>
+		<ee:transform doc:name="Transform Message" doc:id="18356a03-410e-4173-9619-51fddb266862" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

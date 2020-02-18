@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns:x12="http://www.mulesoft.org/schema/mule/x12"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/x12 http://www.mulesoft.org/schema/mule/x12/current/mule-x12.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="d147f208-200d-45b2-bfb2-e4561f2009da" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="446852ad-3cd9-41a2-9fb7-8bd728a45faf" >
+		<salesforce:cached-basic-connection username="dheeru2@nothing.com" password="brother2523" securityToken="jqivcHMYwSLHNNQXV7RMjEDf" />
+	</salesforce:sfdc-config>
+	<flow name="testFlow" doc:id="835ef64e-4e85-4f6e-aa55-1f02a940307a" >
+		<http:listener doc:name="Listener" doc:id="c25aaf23-84b5-4add-9126-403d71a64145" config-ref="HTTP_Listener_config" path="/Test"/>
+		<logger level="INFO" doc:name="Logger" doc:id="53e23623-29cd-41a8-b634-1e0ba3bf3593" message="#[payload]"/>
+		<set-variable value="#[payload]" doc:name="Set Variable" doc:id="4263c00a-613e-4dc0-a810-15467e3c43a5" variableName="ActualInput"/>
+		<flow-ref doc:name="Flow Reference" doc:id="064be852-2a7d-4828-a1d5-0fc2d847ae67" name="testFlow1" target="FlowOutput"/>
+		<ee:transform doc:name="Transform Message" doc:id="162a80ee-40ee-4259-b5e8-b78ef87bdec1" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+
+Accounts: vars.FlowOutput
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<choice doc:name="Choice" doc:id="a2aa7a0d-6951-4384-9648-5dfd800f95cd" >
+			<when expression="#[sizeOf(payload) &lt; 0]">
+				<ee:transform doc:name="Transform Message" doc:id="58e25cc6-47c7-4a8c-9a5c-19a743b5d4ca">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/xml
+---
+AccountInfo:
+    Accounts: (payload.Accounts default []) map(data,index) -> {
+    	
+    	Index: index ,
+    	Id : data.Id,
+    	Name: data.Name
+    }]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+			</when>
+			<otherwise>
+				<ee:transform doc:name="Transform Message" doc:id="9d68c9dc-7e3b-4e9d-9254-e34b6fe28166">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+
+Output: vars.ActualInput]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<ee:transform doc:name="Transform Message" doc:id="ee274470-caf4-4db0-827b-6301162018b6" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+vars.FlowOutput.payload map ( payload01 , indexOfPayload01 ) -> {
+	Id: payload01.Id,
+	Name: payload01.Name
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:create type="Account" doc:name="Create" doc:id="ebf8661f-6d66-4042-84d0-b052549c8fd4" config-ref="Salesforce_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="0c379229-7907-44e4-ba97-b6ef83275116" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="a7d65eee-1057-42d4-b415-0f8597c1b39e" message="'Process Complete'"/>
+	</flow>
+	<flow name="testFlow1" doc:id="8adaea3b-1bd4-4506-b39f-96def9b3adc1" >
+		<salesforce:query doc:name="Query" doc:id="c6cf5d40-9ba1-4a8b-a7ad-0c174b1b8d59" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query >select  Id,Name from ACCOUNT</salesforce:salesforce-query>
+		</salesforce:query>
+	</flow>
+</mule>

@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="AccountData" format="json">
+      <types:shape format="weave" example="examples/Test"><![CDATA[%dw 2.0
+
+type AccountData = Array<{|  Name: String,   billingAddress: String,   billingCity: String,   billingCountry: String,   billingState: String,   billingPostalCOde: String,   Description: String,   "Account Number": String|}> {"example": "[{\\\"Name\\\":\\\"Xytrex Co.\\\",\\\"billingAddress\\\":\\\"Utica Ave\\\",\\\"billingCity\\\":\\\"St Louis Park\\\",\\\"billingCountry\\\":\\\"USA\\\",\\\"billingState\\\":\\\"NN\\\",\\\"billingPostalCOde\\\":\\\"55443\\\",\\\"Description\\\":\\\"Industrial Cleaning Supply Company\\\",\\\"Account Number\\\":\\\"ABC15797531\\\"},{\\\"Name\\\":\\\"Xytrex Co. 2345\\\",\\\"billingAddress\\\":\\\"Utica Ave\\\",\\\"billingCity\\\":\\\"St Louis Park\\\",\\\"billingCountry\\\":\\\"USA\\\",\\\"billingState\\\":\\\"NN\\\",\\\"billingPostalCOde\\\":\\\"55443\\\",\\\"Description\\\":\\\"Industrial Cleaning Supply Company\\\",\\\"Account Number\\\":\\\"ABC15797532\\\"}]"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="Book" format="xml">
+      <types:example format="xml" element="bookstore" location="examples/BookStore"/>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#31b4853e-9f54-4119-847e-2b2b5a055469">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="AccountData"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#4042623f-2a00-47df-b6cc-26747134a454">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="Book"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>
